@@ -1,0 +1,65 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-12frames}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-12frames_password}
+      POSTGRES_DB: ${POSTGRES_DB:-12frames_db}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
+
+  backend:
+    build:
+      context: ./apps/backend
+    env_file:
+      - .env
+    depends_on:
+      - postgres
+      - redis
+    ports:
+      - "3000:3000"
+
+  frontend:
+    build:
+      context: ./apps/frontend
+    env_file:
+      - .env
+    depends_on:
+      - backend
+    ports:
+      - "4173:80"
+
+  render-worker:
+    build:
+      context: ./worker/render-worker
+    env_file:
+      - .env
+    depends_on:
+      - redis
+      - frontend
+    volumes:
+      - renders_data:/data/renders
+
+  nginx:
+    image: nginx:stable-alpine
+    volumes:
+      - ./docker/nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - renders_data:/var/www/renders
+    ports:
+      - "80:80"
+    depends_on:
+      - frontend
+      - backend
+
+volumes:
+  postgres_data:
+  renders_data:
