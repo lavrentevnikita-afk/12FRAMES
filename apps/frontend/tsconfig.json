@@ -9,16 +9,9 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "esModuleInterop": true,
-    "lib": [
-      "ESNext",
-      "DOM"
-    ],
-    "types": [
-      "vite/client"
-    ]
+    "lib": ["ESNext", "DOM"],
+    "skipLibCheck": true,
+    "types": ["vite/client"]
   },
-  "include": [
-    "src/**/*",
-    "src/**/*.d.ts"
-  ]
+  "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue"]
 }

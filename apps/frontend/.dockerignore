@@ -1,0 +1,15 @@
+node_modules
+dist
+.git
+.gitignore
+npm-debug.log
+Dockerfile
+.dockerignore
+
+# IDE / OS
+.vscode
+.idea
+.DS_Store
+
+# Vite
+*.local
