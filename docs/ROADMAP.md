@@ -55,35 +55,35 @@
 
 ### 2.1. Auth и пользователи
 
-1. [ ] Инициализировать NestJS-проект в `apps/backend`.
-2. [ ] Настроить `ConfigModule`, подключение к PostgreSQL через TypeORM/Prisma.
-3. [ ] Создать сущность `User` (email, пароль, роли, метаданные).
-4. [ ] Реализовать:
+1. [✅] Инициализировать NestJS-проект в `apps/backend`.
+2. [✅] Настроить `ConfigModule`, подключение к PostgreSQL через TypeORM/Prisma.
+3. [✅] Создать сущность `User` (email, пароль, роли, метаданные).
+4. [✅] Реализовать:
    - `POST /auth/register`,
    - `POST /auth/login`,
    - `GET /auth/me`.
-5. [ ] Сделать защиту эндпоинтов через JWT (`Authorization: Bearer`).
+5. [✅] Сделать защиту эндпоинтов через JWT (`Authorization: Bearer`).
 
 ### 2.2. Проекты календарей
 
-1. [ ] Создать сущность `Project` (как JSON-описание календаря).
-2. [ ] Реализовать CRUD:
+1. [✅] Создать сущность `Project` (как JSON-описание календаря).
+2. [✅] Реализовать CRUD:
    - `GET /projects` — список проектов пользователя,
    - `POST /projects` — создать новый проект,
    - `GET /projects/:id`,
    - `PUT /projects/:id`,
    - `DELETE /projects/:id`.
-3. [ ] Добавить поле `isPublic` для Workshop.
-4. [ ] Добавить базовую валидацию DTO.
+3. [✅] Добавить поле `isPublic` для Workshop.
+4. [✅] Добавить базовую валидацию DTO.
 
 ### 2.3. Шаблоны и Workshop (MVP)
 
-1. [ ] Создать сущность `Template`:
+1. [✅] Создать сущность `Template`:
    - ownerId (может быть системный),
    - JSON-конфиг,
    - превью-изображение,
    - теги.
-2. [ ] Эндпоинты:
+2. [✅] Эндпоинты:
    - `GET /templates` — публичная галерея,
    - `GET /templates/:id`,
    - `POST /templates` — создание шаблона (для авторов),
