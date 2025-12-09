@@ -6,6 +6,8 @@ import { User } from './entities/user.entity'
 import { Project } from './entities/project.entity'
 import { Template } from './entities/template.entity'
 import { RenderJob } from './entities/render-job.entity'
+import { AuthModule } from './auth/auth.module'
+import { ProjectsModule } from './projects/projects.module'
 
 @Module({
   imports: [
@@ -17,9 +19,12 @@ import { RenderJob } from './entities/render-job.entity'
       password: process.env.POSTGRES_PASSWORD || '12frames_password',
       database: process.env.POSTGRES_DB || '12frames_db',
       entities: [User, Project, Template, RenderJob],
-      synchronize: false,
+      synchronize: true,           // 🔥 было false
       autoLoadEntities: false,
     }),
+    
+    AuthModule,
+    ProjectsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

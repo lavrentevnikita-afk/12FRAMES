@@ -5,6 +5,8 @@ import { AppModule } from './app.module'
 async function bootstrap() {
   const app = await NestFactory.create(AppModule)
 
+  app.setGlobalPrefix('api')
+
   // CORS, чтобы фронтенд мог ходить к API
   app.enableCors({
     origin: true,

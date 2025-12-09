@@ -12,13 +12,13 @@ export class Template {
   @Column({ type: 'text', nullable: true })
   description: string | null
 
-  @Column({ name: 'preview_url', type: 'text', nullable: true })
-  previewUrl: string | null   // ← ключевое изменение: type: 'text'
+  @Column({ name: 'preview_url', type: 'varchar', length: 500, nullable: true })
+  previewUrl: string | null
 
   @Column({ type: 'jsonb', nullable: true })
   config: Record<string, any> | null
 
-  @Column({ default: true })
+  @Column({ name: 'is_public', default: true })
   isPublic: boolean
 
   @CreateDateColumn({ name: 'created_at' })
