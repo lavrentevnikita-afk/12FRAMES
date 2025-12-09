@@ -3,11 +3,14 @@ import {
   CreateRenderJobOptions,
   RenderJobCallbackDto,
   RenderJobDto,
+  RenderPresetId,
   RenderJobsService,
 } from './render-jobs.service'
 
+
 class CreateRenderJobDto {
   format?: CreateRenderJobOptions['format']
+  preset?: RenderPresetId
 }
 
 @Controller()
@@ -24,15 +27,15 @@ export class RenderJobsController {
   /**
    * POST /projects/:id/render — создать задачу рендера
    */
-  @Post('projects/:id/render')
+  @Post('projects/:projectId/render')
   async createRenderJob(
-    @Param('id') projectId: string,
+    @Param('projectId') projectId: string,
     @Body() body: CreateRenderJobDto,
-    @Headers('authorization') authHeader?: string,
+    @Headers('x-user-id') ownerId: string,
   ): Promise<RenderJobDto> {
-    const token = this.extractToken(authHeader)
-    return this.renderJobsService.createForProject(projectId, token, {
-      format: body.format,
+    return this.renderJobsService.createRenderJob(projectId, ownerId, {
+      format: body.format ?? 'pdf',
+      preset: body.preset ?? 'a4-vertical',
     })
   }
 

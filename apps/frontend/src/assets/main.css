@@ -13,3 +13,62 @@ body {
 ::-webkit-scrollbar-thumb {
   @apply bg-neutral-700 rounded-full;
 }
+
+.print-root {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #111; /* фон вокруг листа */
+  padding: 24px;
+}
+
+/* Размер страницы задаём через custom properties от Vue */
+.print-page {
+  position: relative;
+  width: var(--page-width-mm, 210mm);
+  height: var(--page-height-mm, 297mm);
+  background: #ffffff;
+  color: #000000;
+  box-shadow: 0 0 40px rgba(0, 0, 0, 0.4);
+  overflow: hidden;
+}
+
+/* bleed-слой: сюда можно класть фоны/фото, они идут за край страницы */
+.print-bleed-layer {
+  position: absolute;
+  top: calc(-1 * var(--bleed-mm, 3mm));
+  left: calc(-1 * var(--bleed-mm, 3mm));
+  right: calc(-1 * var(--bleed-mm, 3mm));
+  bottom: calc(-1 * var(--bleed-mm, 3mm));
+  pointer-events: none;
+}
+
+/* безопасная зона: туда кладём основной контент */
+.print-safe-zone {
+  position: absolute;
+  top: calc(var(--margin-top-mm, 10mm) + var(--safe-zone-mm, 5mm));
+  left: calc(var(--margin-left-mm, 10mm) + var(--safe-zone-mm, 5mm));
+  right: calc(var(--margin-right-mm, 10mm) + var(--safe-zone-mm, 5mm));
+  bottom: calc(var(--margin-bottom-mm, 10mm) + var(--safe-zone-mm, 5mm));
+  display: flex;
+  align-items: stretch;
+  justify-content: stretch;
+}
+
+/* Поддержка печати (браузер / Puppeteer) */
+@media print {
+  body {
+    background: #ffffff;
+  }
+
+  .print-root {
+    padding: 0;
+    background: #ffffff;
+    box-shadow: none;
+  }
+
+  .print-page {
+    box-shadow: none;
+  }
+}

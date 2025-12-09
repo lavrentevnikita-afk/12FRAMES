@@ -7,10 +7,14 @@ import { Project } from '../entities/project.entity'
 
 export type RenderFormat = 'pdf' | 'png'
 
+export type RenderPresetId = 'a4-vertical' | 'a3-vertical'
+
 interface RenderQueueJobData {
   projectId: string
   format: RenderFormat
+  preset?: RenderPresetId // <-- новое поле, опционально
 }
+
 
 export interface RenderJobDto {
   id: string
@@ -25,6 +29,7 @@ export interface RenderJobDto {
 
 export interface CreateRenderJobOptions {
   format?: RenderFormat
+  preset?: RenderPresetId
 }
 
 export interface RenderJobCallbackDto {
@@ -157,6 +162,16 @@ export class RenderJobsService {
     }
 
     const saved = await this.jobsRepo.save(job)
+
+    const payload: RenderQueueJobData = {
+      projectId: project.id,
+      format: options?.format ?? 'pdf',
+      preset: options?.preset ?? 'a4-vertical',
+    }
+
+    await this.renderQueue.add(payload, {
+      attempts: 3,
+    })
 
     this.logger.log(
       `Render job ${jobId} updated from callback: status=${saved.status}, resultUrl=${saved.resultUrl}`,

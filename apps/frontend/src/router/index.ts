@@ -5,6 +5,7 @@ import WorkshopView from '@/views/WorkshopView.vue'
 import LoginView from '@/views/auth/LoginView.vue'
 import RegisterView from '@/views/auth/RegisterView.vue'
 import { useUserStore } from '@/stores/user'
+import RenderLayoutView from '@/views/RenderLayoutView.vue'
 
 const routes: RouteRecordRaw[] = [
   {
@@ -13,6 +14,14 @@ const routes: RouteRecordRaw[] = [
     component: HomeView,
     meta: { requiresAuth: true },
   },
+  {
+    path: '/render/:projectId',
+    name: 'render-layout',
+    component: RenderLayoutView,
+    meta: {
+      requiresAuth: false,
+      isRenderLayout: true, 
+    },
   {
     path: '/editor/:projectId',
     name: 'editor',

@@ -4,10 +4,19 @@ import { promises as fs } from 'fs'
 import puppeteer from 'puppeteer-core'
 
 type RenderFormat = 'pdf' | 'png'
+type RenderPresetId = 'a4-vertical' | 'a3-vertical'
 
 interface RenderJobData {
   projectId: string
   format: RenderFormat
+  preset?: RenderPresetId
+}
+
+const VIEWPORT_DPI = 150
+const MM_PER_INCH = 25.4
+
+function mmToPx(mm: number, dpi = VIEWPORT_DPI): number {
+  return Math.round((mm / MM_PER_INCH) * dpi)
 }
 
 const redisHost = process.env.REDIS_HOST || 'localhost'
@@ -48,7 +57,9 @@ renderQueue.process(async (job: Job<RenderJobData>) => {
   const filename = `${projectId}-${timestamp}.${format}`
   const filePath = path.join(outputDir, filename)
   const publicUrl = `/renders/${filename}`
-  const url = `${frontendRenderBaseUrl}/${projectId}`
+  const preset = getPreset(job.data.preset)
+  const url = `${frontendRenderBaseUrl}/${projectId}?preset=${preset.id}`
+
 
   console.log(`[render-worker] Opening URL: ${url}`)
   console.log(`[render-worker] Target file: ${filePath}`)
@@ -62,8 +73,12 @@ renderQueue.process(async (job: Job<RenderJobData>) => {
   try {
     const page = await browser.newPage()
 
-    // Базовый viewport под A4 вертикально, можно будет вынести в настройки позже.
-    await page.setViewport({ width: 1240, height: 1754 })
+  const preset = getPreset(job.data.preset)
+
+  await page.setViewport({
+    width: mmToPx(preset.pageWidthMm),
+    height: mmToPx(preset.pageHeightMm),
+  })
 
     await page.goto(url, {
       waitUntil: 'networkidle0',
@@ -117,3 +132,66 @@ renderQueue.on('failed', (job, err) => {
 renderQueue.on('error', (err) => {
   console.error('[render-worker] Queue error:', err)
 })
+
+const PRINT_PRESETS: Record<
+  RenderPresetId,
+  {
+    id: RenderPresetId
+    label: string
+    pageWidthMm: number
+    pageHeightMm: number
+    // поля (внутренние отступы, куда нельзя залезать основным контентом)
+    marginMm: { top: number; right: number; bottom: number; left: number }
+    // безопасная зона (доп. отступ от края контента до края бумаги)
+    safeZoneMm: number
+    // bleed — на сколько за край бумаги мы выносим фон/картинку
+    bleedMm: number
+  }
+> = {
+  'a4-vertical': {
+    id: 'a4-vertical',
+    label: 'A4 vertical',
+    pageWidthMm: 210,
+    pageHeightMm: 297,
+    marginMm: { top: 10, right: 10, bottom: 10, left: 10 },
+    safeZoneMm: 5,
+    bleedMm: 3,
+  },
+  'a3-vertical': {
+    id: 'a3-vertical',
+    label: 'A3 vertical',
+    pageWidthMm: 297,
+    pageHeightMm: 420,
+    marginMm: { top: 12, right: 12, bottom: 12, left: 12 },
+    safeZoneMm: 6,
+    bleedMm: 3,
+  },
+}
+
+function getPreset(id: RenderPresetId | undefined): (typeof PRINT_PRESETS)[RenderPresetId] {
+  return PRINT_PRESETS[id ?? 'a4-vertical']
+}
+
+if (format === 'pdf') {
+  const preset = getPreset(job.data.preset)
+
+  await page.pdf({
+    path: filePath,
+    printBackground: true,
+    preferCSSPageSize: true,
+    // Сам формат (для Puppeteer)
+    format: preset.id === 'a4-vertical' ? 'A4' : 'A3',
+    // Поля печати в миллиметрах
+    margin: {
+      top: `${preset.marginMm.top}mm`,
+      right: `${preset.marginMm.right}mm`,
+      bottom: `${preset.marginMm.bottom}mm`,
+      left: `${preset.marginMm.left}mm`,
+    },
+  })
+} else {
+  await page.screenshot({
+    path: filePath,
+    fullPage: true,
+  })
+}

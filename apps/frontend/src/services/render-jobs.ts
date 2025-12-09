@@ -2,6 +2,11 @@ import api from './api'
 
 export type RenderJobStatus = 'pending' | 'processing' | 'completed' | 'failed'
 
+export interface CreateRenderJobPayload {
+  format?: 'pdf' | 'png'
+  preset?: PrintPresetId
+}
+
 export interface RenderJob {
   id: string
   projectId: string | null

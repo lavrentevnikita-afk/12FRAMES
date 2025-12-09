@@ -13,7 +13,11 @@
           <div class="text-[11px] text-neutral-400 uppercase tracking-[0.16em]">Calendar Studio</div>
         </div>
       </div>
-
+       
+      <div v-if="isRenderLayout" class="bg-white text-black min-h-screen">
+    <RouterView />
+      </div>
+      
       <nav class="flex-1 px-3 py-4 space-y-1 text-sm">
         <RouterLink
           to="/"
@@ -74,11 +78,14 @@
 </template>
 
 <script setup lang="ts">
-import { RouterView, RouterLink } from 'vue-router'
-import { useUserStore } from '@/stores/user'
 import { computed, onMounted } from 'vue'
+import { useRoute, RouterView, RouterLink } from 'vue-router'
+import { useUserStore } from '@/stores/user'
 
+const route = useRoute()
 const userStore = useUserStore()
+
+const isRenderLayout = computed(() => route.meta.isRenderLayout === true)
 
 const initials = computed(() => {
   if (!userStore.profile?.name) return '👤'

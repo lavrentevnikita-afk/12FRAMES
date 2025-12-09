@@ -121,6 +121,17 @@
               <span class="uppercase tracking-[0.18em] text-[10px] text-neutral-500">Export</span>
             </div>
 
+              <div class="flex flex-col gap-2">
+              <label class="text-[11px] uppercase tracking-[0.16em] text-neutral-500">Format</label>
+              <select
+                v-model="selectedPreset"
+                class="bg-neutral-900 border border-neutral-700 rounded-md px-2 py-1 text-xs outline-none focus:border-neutral-400"
+              >
+                <option value="a4-vertical">A4 vertical</option>
+                <option value="a3-vertical">A3 vertical</option>
+              </select>
+            </div>
+
             <button
               class="w-full inline-flex items-center justify-center rounded-2xl px-3 py-2 text-xs font-medium bg-neutral-50 text-neutral-900 disabled:opacity-60 disabled:cursor-not-allowed"
               :disabled="!project || isExporting"
@@ -172,9 +183,12 @@ import { useProjectsStore } from '@/stores/projects'
 import CalendarPreview from '@/components/CalendarPreview.vue'
 import { createRenderJob, fetchRenderJob, type RenderJob, type RenderJobStatus } from '@/services/render-jobs'
 import type { Project } from '@/types/project'
+import type { PrintPresetId } from '@/types/project'
+
 
 const route = useRoute()
 const projectsStore = useProjectsStore()
+const selectedPreset = ref<PrintPresetId>('a4-vertical')
 
 const renderState = reactive<{
   jobId: string | null
@@ -229,22 +243,26 @@ function startPolling(jobId: string) {
 }
 
 async function exportPdf() {
-  if (!projectId) return
-
+  if (!project.value || isExporting.value) return
+  isExporting.value = true
   renderState.status = 'pending'
   renderState.error = null
   renderState.resultUrl = null
 
   try {
-    const job = await createRenderJob(projectId, { format: 'pdf' })
-    renderState.status = job.status
+    const job = await createRenderJob(project.value.id, {
+      format: 'pdf',
+      preset: selectedPreset.value,
+    })
     renderState.jobId = job.id
-    startPolling(job.id)
-  } catch (error) {
-    renderState.status = 'failed'
-    renderState.error = 'Failed to start export'
+    // дальше — твой уже реализованный polling по статусу
+  } catch (e: any) {
+    renderState.error = e?.message ?? 'Failed to start render'
+  } finally {
+    isExporting.value = false
   }
 }
+
 
 onUnmounted(() => {
   if (pollIntervalId.value) {
