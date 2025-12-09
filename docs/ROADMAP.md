@@ -131,13 +131,14 @@
 
 ### 4.1. Render Worker
 
-1. [ ] Инициализировать `worker/render-worker` как Node-проект.
-2. [ ] Подключить Bull/BullMQ и Redis.
-3. [ ] Настроить очередь `render`.
-4. [ ] Реализовать обработчик:
+1. [✅] Инициализировать `worker/render-worker` как Node-проект.
+2. [✅] Подключить Bull/BullMQ и Redis.
+3. [✅] Настроить очередь `render`.
+4. [✅] Реализовать обработчик:
    - Принимать `projectId` и формат (`pdf` / `png`),
    - Открывать `FRONTEND_RENDER_URL/:projectId` в headless-режиме,
    - Сохранять файл в `RENDER_OUTPUT_DIR`.
+
 
 ### 4.2. Backend-API для экспорта
 
