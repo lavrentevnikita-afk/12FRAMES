@@ -15,7 +15,7 @@ export class RenderJob {
   @Column({ type: 'varchar', length: 32, default: 'pending' })
   status: RenderJobStatus
 
-  @Column({ name: 'result_url', nullable: true })
+  @Column({ name: 'result_url', type: 'varchar', length: 500, nullable: true })
   resultUrl: string | null
 
   @Column({ type: 'text', nullable: true })

@@ -11,7 +11,7 @@ export class Project {
   @Column({ length: 255 })
   title: string
 
-  @Column({ length: 255, nullable: true })
+  @Column({ type: 'varchar', length: 255, nullable: true })
   slug: string | null
 
   @Column({ type: 'jsonb', nullable: true })
