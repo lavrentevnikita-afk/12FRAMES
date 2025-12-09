@@ -12,6 +12,9 @@ export class RenderJob {
   @JoinColumn({ name: 'project_id' })
   project: Project
 
+  @Column({ name: 'owner_id', type: 'uuid' })
+  ownerId: string
+
   @Column({ type: 'varchar', length: 32, default: 'pending' })
   status: RenderJobStatus
 

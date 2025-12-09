@@ -8,6 +8,7 @@ import { Template } from './entities/template.entity'
 import { RenderJob } from './entities/render-job.entity'
 import { AuthModule } from './auth/auth.module'
 import { ProjectsModule } from './projects/projects.module'
+import { RenderJobsModule } from './render-jobs/render-jobs.module'
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { ProjectsModule } from './projects/projects.module'
     
     AuthModule,
     ProjectsModule,
+    RenderJobsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
