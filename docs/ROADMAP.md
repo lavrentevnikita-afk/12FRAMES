@@ -29,21 +29,21 @@
 
 ### 1.1. Структура репозитория
 
-1. [ ] Создать базовый монорепо скелет (как в `docs/ARCHITECTURE_AND_DEPLOYMENT.md`):
+1. [✅] Создать базовый монорепо скелет (как в `docs/ARCHITECTURE_AND_DEPLOYMENT.md`):
    - `apps/frontend`,
    - `apps/backend`,
    - `worker/render-worker`,
    - `packages/shared`,
    - `docker/`, `docs/`.
-2. [ ] Добавить `README.md` (описание продукта) — уже есть черновик.
-3. [ ] Добавить `.env.example` с базовыми переменными окружения.
-4. [ ] Настроить `package.json` с workspace'ами и скриптами.
+2. [✅] Добавить `README.md` (описание продукта) — уже есть черновик.
+3. [✅] Добавить `.env.example` с базовыми переменными окружения.
+4. [✅] Настроить `package.json` с workspace'ами и скриптами.
 
 ### 1.2. Docker и базы
 
-1. [ ] Поднять локально `postgres` и `redis` через `docker-compose`.
-2. [ ] Проверить подключение к БД из backend'а.
-3. [ ] Настроить базовую схему БД (миграции):
+1. [✅] Поднять локально `postgres` и `redis` через `docker-compose`.
+2. [✅] Проверить подключение к БД из backend'а.
+3. [✅] Настроить базовую схему БД (миграции):
    - `users`,
    - `projects`,
    - `templates`,

@@ -15,6 +15,8 @@
     "build": "npm run build:frontend && npm run build:backend && npm run build:worker",
     "build:frontend": "cd apps/frontend && npm run build",
     "build:backend": "cd apps/backend && npm run build",
-    "build:worker": "cd worker/render-worker && npm run build"
+    "build:worker": "cd worker/render-worker && npm run build",
+    "db:migrate": "cd apps/backend && npm run migration:run",
+    "db:migrate:revert": "cd apps/backend && npm run migration:revert"
   }
 }

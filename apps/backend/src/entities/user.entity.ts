@@ -1,0 +1,26 @@
+import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm'
+import { Project } from './project.entity'
+
+@Entity('users')
+export class User {
+  @PrimaryGeneratedColumn('uuid')
+  id: string
+
+  @Column({ unique: true })
+  email: string
+
+  @Column({ name: 'password_hash' })
+  passwordHash: string
+
+  @Column({ default: false })
+  isAdmin: boolean
+
+  @CreateDateColumn({ name: 'created_at' })
+  createdAt: Date
+
+  @UpdateDateColumn({ name: 'updated_at' })
+  updatedAt: Date
+
+  @OneToMany(() => Project, (project) => project.owner)
+  projects: Project[]
+}
