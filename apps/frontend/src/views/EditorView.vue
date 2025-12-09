@@ -115,6 +115,50 @@
               In this stage it is a visual prototype — image uploads are local only.
             </p>
           </div>
+
+          <div class="rounded-3xl bg-neutral-900/80 border border-neutral-800 p-4 text-xs text-neutral-400 space-y-3">
+            <div class="flex items-center justify-between mb-1">
+              <span class="uppercase tracking-[0.18em] text-[10px] text-neutral-500">Export</span>
+            </div>
+
+            <button
+              class="w-full inline-flex items-center justify-center rounded-2xl px-3 py-2 text-xs font-medium bg-neutral-50 text-neutral-900 disabled:opacity-60 disabled:cursor-not-allowed"
+              :disabled="!project || isExporting"
+              @click="exportPdf"
+            >
+              <span v-if="!isExporting">Export PDF</span>
+              <span v-else class="inline-flex items-center gap-2">
+                <span
+                  class="w-3 h-3 border border-neutral-400 border-t-transparent rounded-full animate-spin"
+                />
+                Generating PDF…
+              </span>
+            </button>
+
+            <div v-if="hasResult" class="text-[11px] text-neutral-400 space-y-1">
+              <p class="text-neutral-500">Your export is ready.</p>
+              <a
+                :href="renderState.resultUrl || undefined"
+                class="inline-flex items-center gap-1 text-xs text-neutral-100 underline underline-offset-2"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Download PDF
+              </a>
+            </div>
+
+            <p v-if="renderState.status === 'failed' && renderState.error" class="text-[11px] text-red-400">
+              {{ renderState.error }}
+            </p>
+
+            <p v-else-if="renderState.status === 'failed'" class="text-[11px] text-red-400">
+              Export failed. Please try again.
+            </p>
+
+            <p v-else-if="isExporting && !hasResult" class="text-[11px] text-neutral-500">
+              Generating PDF on server…
+            </p>
+          </div>
         </div>
       </div>
     </div>
@@ -122,14 +166,92 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, reactive, watch } from 'vue'
+import { computed, onMounted, onUnmounted, reactive, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useProjectsStore } from '@/stores/projects'
 import CalendarPreview from '@/components/CalendarPreview.vue'
+import { createRenderJob, fetchRenderJob, type RenderJob, type RenderJobStatus } from '@/services/render-jobs'
 import type { Project } from '@/types/project'
 
 const route = useRoute()
 const projectsStore = useProjectsStore()
+
+const renderState = reactive<{
+  jobId: string | null
+  status: RenderJobStatus | 'idle'
+  resultUrl: string | null
+  error: string | null
+}>({
+  jobId: null,
+  status: 'idle',
+  resultUrl: null,
+  error: null,
+})
+
+const pollIntervalId = ref<number | null>(null)
+
+const isExporting = computed(
+  () => renderState.status === 'pending' || renderState.status === 'processing',
+)
+
+const hasResult = computed(
+  () => renderState.status === 'completed' && !!renderState.resultUrl,
+)
+
+function startPolling(jobId: string) {
+  renderState.jobId = jobId
+  if (pollIntervalId.value) {
+    clearInterval(pollIntervalId.value)
+    pollIntervalId.value = null
+  }
+
+  pollIntervalId.value = window.setInterval(async () => {
+    try {
+      const job = await fetchRenderJob(jobId)
+      renderState.status = job.status
+      renderState.resultUrl = job.resultUrl
+      renderState.error = job.error
+
+      if (job.status === 'completed' || job.status === 'failed') {
+        if (pollIntervalId.value) {
+          clearInterval(pollIntervalId.value)
+          pollIntervalId.value = null
+        }
+      }
+    } catch (error) {
+      renderState.error = 'Failed to fetch render status'
+      if (pollIntervalId.value) {
+        clearInterval(pollIntervalId.value)
+        pollIntervalId.value = null
+      }
+    }
+  }, 2000)
+}
+
+async function exportPdf() {
+  if (!projectId) return
+
+  renderState.status = 'pending'
+  renderState.error = null
+  renderState.resultUrl = null
+
+  try {
+    const job = await createRenderJob(projectId, { format: 'pdf' })
+    renderState.status = job.status
+    renderState.jobId = job.id
+    startPolling(job.id)
+  } catch (error) {
+    renderState.status = 'failed'
+    renderState.error = 'Failed to start export'
+  }
+}
+
+onUnmounted(() => {
+  if (pollIntervalId.value) {
+    clearInterval(pollIntervalId.value)
+    pollIntervalId.value = null
+  }
+})
 
 const draft = reactive<Project>({
   id: '',
